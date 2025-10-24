@@ -1,0 +1,14 @@
+{
+  "name": "frontend-motion-lab",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "pnpm -r --if-present build",
+    "lint": "pnpm -r --if-present lint",
+    "test": "pnpm -r --if-present test"
+  },
+  "keywords": [],
+  "author": "Vernon E. Neilly II",
+  "license": "MIT"
+}
