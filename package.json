@@ -8,6 +8,7 @@
     "lint": "pnpm -r --if-present lint",
     "test": "pnpm -r --if-present test"
   },
+  "packageManager": "pnpm@9.12.0",
   "keywords": [],
   "author": "Vernon E. Neilly II",
   "license": "MIT"
