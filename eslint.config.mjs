@@ -2,6 +2,7 @@ import js from "@eslint/js";
 import tsParser from "@typescript-eslint/parser";
 import tsPlugin from "@typescript-eslint/eslint-plugin";
 import importPlugin from "eslint-plugin-import";
+import globals from "globals";
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
@@ -32,12 +33,19 @@ export default [
         ecmaVersion: "latest",
         sourceType: "module",
       },
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+      },
     },
     plugins: {
       "@typescript-eslint": tsPlugin,
       import: importPlugin,
     },
     rules: {
+      // Disable base rule in TS files; use the TS-specific one below
+      "no-unused-vars": "off",
+
       // TS best-practice set (lean to keep it friendly)
       "@typescript-eslint/consistent-type-imports": "warn",
       "@typescript-eslint/no-unused-vars": [
@@ -51,11 +59,7 @@ export default [
         {
           "newlines-between": "always",
           alphabetize: { order: "asc", caseInsensitive: true },
-          groups: [
-            ["builtin", "external"],
-            ["internal"],
-            ["parent", "sibling", "index"],
-          ],
+          groups: [["builtin", "external"], ["internal"], ["parent", "sibling", "index"]],
         },
       ],
       "import/no-unresolved": "off", // workspace paths resolved by TS/Vite

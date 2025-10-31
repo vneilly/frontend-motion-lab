@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // Emit compiled JS and type declarations for library consumption
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "dist",
+    "rootDir": "src",
+
+    // Keep source clean and portable
+    "isolatedModules": true,
+    "noEmit": false
+  },
+  "include": ["src"]
+}
