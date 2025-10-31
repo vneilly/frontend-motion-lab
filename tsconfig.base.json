@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    // Modern JS emit and type libs
+    "target": "ES2022",
+    "module": "ESNext",
+    "lib": ["ES2022", "DOM"],
+
+    // Resolution model that plays well with ESM and bundlers
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "allowJs": false,
+    "checkJs": false,
+
+    // Strictness — great for libraries
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+
+    // Declarations & maps are enabled per-package (not here) to keep the base clean
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false,
+
+    // Interop ergonomics
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  }
+}
