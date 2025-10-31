@@ -44,6 +44,10 @@ frontend-motion-lab/
 Each task or learning module is tracked via **GitHub Issues** and follows a clear PR process.  
 Branches use the format `feature/<TICKET-ID>-slug`, and commits follow **Conventional Commits**.
 
+## Process
+
+See our ticket standards: [Ticket Grooming & Sizing](./.github/TICKET_GROOMING_GUIDELINES.md)
+
 ---
 
 © 2025 Vernon E. Neilly II · Licensed under the MIT License
