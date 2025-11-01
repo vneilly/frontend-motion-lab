@@ -38,6 +38,8 @@ importers:
 
   packages/shared-utils: {}
 
+  packages/smart-tooltip: {}
+
 packages:
 
   '@esbuild/aix-ppc64@0.25.11':
