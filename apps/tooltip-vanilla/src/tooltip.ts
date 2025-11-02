@@ -4,6 +4,8 @@ const OFFSCREEN = "-9999px, -9999px";
 function createRoot(): HTMLDivElement {
   const el = document.createElement("div");
   el.className = "stp-root";
+  el.id = "stp-tooltip";
+  el.setAttribute("role", "tooltip");
   el.setAttribute("data-visible", "false");
   el.textContent = "";
   document.body.appendChild(el);
