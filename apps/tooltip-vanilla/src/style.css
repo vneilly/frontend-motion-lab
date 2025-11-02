@@ -1,0 +1,57 @@
+:root {
+  --stp-bg: rgba(20, 20, 24, 0.92);
+  --stp-fg: #f7f7fb;
+  --stp-radius: 8px;
+  --stp-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  --stp-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  --stp-padding: 8px 10px;
+  --stp-gap: 8px;
+}
+
+/* Page scaffolding (nice but minimal) */
+body {
+  margin: 0;
+  font-family: var(--stp-font);
+  line-height: 1.4;
+  color: #222;
+  background: #fafafa;
+  padding: 24px;
+}
+
+.demo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--stp-gap);
+}
+
+/* Tooltip shell (library-agnostic, demo-owned CSS) */
+.stp-root {
+  position: fixed;
+  inset: 0 auto auto 0; /* anchor at top-left; we’ll move via transform */
+  transform: translate(-9999px, -9999px); /* off-screen initially */
+  pointer-events: none;
+  z-index: 9999;
+
+  background: var(--stp-bg);
+  color: var(--stp-fg);
+  padding: var(--stp-padding);
+  border-radius: var(--stp-radius);
+  box-shadow: var(--stp-shadow);
+
+  font-size: 14px;
+  will-change: transform;
+  transition: opacity 120ms ease;
+  opacity: 0;
+}
+
+.stp-root[data-visible="true"] {
+  opacity: 1;
+}
+
+.vn-card {
+  padding: 12px;
+  border: 1px;
+  border-color: #ddd;
+  border-radius: 8px;
+  background: #fff;
+}
