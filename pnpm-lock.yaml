@@ -37,6 +37,10 @@ importers:
         version: 4.0.3
 
   apps/tooltip-vanilla:
+    dependencies:
+      '@vn2/shared-utils':
+        specifier: workspace:*
+        version: link:../../packages/shared-utils
     devDependencies:
       typescript:
         specifier: ~5.9.3

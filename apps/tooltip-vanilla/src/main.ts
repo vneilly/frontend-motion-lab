@@ -1,8 +1,11 @@
 import "./style.css";
-import { show, move, hide } from "./tooltip";
 
-const OFFSET_X = 12;
-const OFFSET_Y = 12;
+import { withinViewport } from "@vn2/shared-utils";
+
+import { show, move, hide, getRoot } from "./tooltip";
+
+const OFFSET = 12; // distance away from cursor/target so we don't obsure it.
+const PAD = 8; // margin from viewport edges for tidy UI/UX.
 
 const TOOLTIP_ID = "stp-tooltip";
 
@@ -38,7 +41,14 @@ function wireHoverTooltips(selector = "[data-tooltip]") {
 
     el.addEventListener("mousemove", (e) => {
       const ev = e as MouseEvent;
-      move(ev.clientX + OFFSET_X, ev.clientY + OFFSET_Y);
+
+      const desiredX = ev.clientX + OFFSET;
+      const desiredY = ev.clientY + OFFSET;
+
+      const { width, height } = getRoot().getBoundingClientRect();
+      const { x, y } = withinViewport(desiredX, desiredY, width, height, PAD);
+
+      move(x, y);
     });
 
     el.addEventListener("mouseleave", () => {
@@ -55,8 +65,21 @@ function wireFocusTooltips(selector = "[data-tooltip]") {
       const text = el.getAttribute("data-tooltip") ?? "";
       show(text);
       setDescribedBy(el);
-      const rect = el.getBoundingClientRect();
-      move(rect.left + rect.width + OFFSET_X, rect.top);
+      // const rect = el.getBoundingClientRect();
+      // move(rect.left + rect.width + OFFSET, rect.top);
+
+      const targetRect = el.getBoundingClientRect();
+
+      // measure current tooltip box (singleton)
+      const tipRect = getRoot().getBoundingClientRect();
+
+      let preferredX = targetRect.left + targetRect.width / 2 - tipRect.width / 2;
+      let preferredY = targetRect.top - tipRect.height - OFFSET;
+
+      // clamp to viewport - no clips
+      const { x, y } = withinViewport(preferredX, preferredY, tipRect.width, tipRect.height, PAD);
+
+      move(x, y);
     });
 
     el.addEventListener("blur", () => {
