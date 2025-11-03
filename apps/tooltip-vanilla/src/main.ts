@@ -1,11 +1,20 @@
 import "./style.css";
 
-import { withinViewport } from "@vn2/shared-utils";
+import { rafThrottle, withinViewport } from "@vn2/shared-utils";
 
 import { show, move, hide, getRoot } from "./tooltip";
 
 const OFFSET = 12; // distance away from cursor/target so we don't obsure it.
 const PAD = 8; // margin from viewport edges for tidy UI/UX.
+
+const moveTooltip = rafThrottle((x: number, y: number) => {
+  const { width, height } = getRoot().getBoundingClientRect();
+
+  // Clamp desired positioning to the viewport
+  const { x: safeX, y: safeY } = withinViewport(x, y, width, height, PAD);
+
+  move(safeX, safeY);
+});
 
 const TOOLTIP_ID = "stp-tooltip";
 
@@ -41,17 +50,11 @@ function wireHoverTooltips(selector = "[data-tooltip]") {
 
     el.addEventListener("mousemove", (e) => {
       const ev = e as MouseEvent;
-
-      const desiredX = ev.clientX + OFFSET;
-      const desiredY = ev.clientY + OFFSET;
-
-      const { width, height } = getRoot().getBoundingClientRect();
-      const { x, y } = withinViewport(desiredX, desiredY, width, height, PAD);
-
-      move(x, y);
+      moveTooltip(ev.clientX + OFFSET, ev.clientY + OFFSET);
     });
 
     el.addEventListener("mouseleave", () => {
+      moveTooltip.cancel();
       hide();
     });
   });
