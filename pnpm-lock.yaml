@@ -51,7 +51,11 @@ importers:
 
   packages/shared-utils: {}
 
-  packages/smart-tooltip: {}
+  packages/smart-tooltip:
+    dependencies:
+      '@vn2/shared-utils':
+        specifier: workspace:*
+        version: link:../shared-utils
 
 packages:
 
