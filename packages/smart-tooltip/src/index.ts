@@ -1,1 +1,2 @@
-export const __version = "0.0.1";
+export { SmartTooltip } from "./SmartTooltip";
+export type { SmartTooltipOptions } from "./SmartTooltip";
