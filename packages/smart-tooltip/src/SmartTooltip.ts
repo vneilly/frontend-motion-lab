@@ -19,6 +19,11 @@ export class SmartTooltip {
   private currentTrigger: HTMLElement | null = null;
   private removeListeners: Array<() => void> = [];
   private isAttached: boolean = false;
+  private originalDescribedBy: WeakMap<HTMLElement, string | null> = new WeakMap<
+    HTMLElement,
+    string | null
+  >();
+  private blurTimerId: number | null = null;
 
   private on(target: Document | HTMLElement | Window, type: string, handler: (e: Event) => void) {
     // Cast is pragmatic for Document/Window unions
@@ -68,10 +73,64 @@ export class SmartTooltip {
     this.move(sx, sy);
   }
 
+  private updateDescribedBy(trigger: HTMLElement, op: "add" | "remove"): void {
+    const tipId = this.rootId;
+
+    // get and read current tokens (space-separated ids)
+    const current = trigger.getAttribute("aria-describedby");
+    const currentTokens = (current ?? "").trim().split(/\s+/).filter(Boolean);
+
+    // Branches
+    switch (op) {
+      case "add": {
+        if (!this.originalDescribedBy.has(trigger)) {
+          this.originalDescribedBy.set(trigger, current ?? null);
+        }
+
+        if (!currentTokens.includes(tipId)) {
+          currentTokens.push(tipId);
+        }
+
+        if (currentTokens.length > 0) {
+          trigger.setAttribute("aria-describedby", currentTokens.join(" "));
+        } else {
+          trigger.removeAttribute("aria-describedby");
+        }
+
+        break;
+      }
+      case "remove": {
+        const filtered = currentTokens.filter((t) => t !== tipId);
+
+        if (this.originalDescribedBy.has(trigger)) {
+          const original = this.originalDescribedBy.get(trigger);
+
+          if (original && original.length > 0) {
+            trigger.setAttribute("aria-describedby", original);
+          } else {
+            trigger.removeAttribute("aria-describedby");
+          }
+
+          this.originalDescribedBy.delete(trigger);
+          break;
+        }
+
+        if (filtered.length > 0) {
+          trigger.setAttribute("aria-describedby", filtered.join(" "));
+        } else {
+          trigger.removeAttribute("aria-describedby");
+        }
+
+        break;
+      }
+    }
+  }
+
   public show(text: string): void {
     const el = this.getRoot();
     el.textContent = text;
     el.setAttribute("data-visible", "true");
+    el.setAttribute("aria-hidden", "false");
   }
 
   public move(x: number, y: number): void {
@@ -80,9 +139,14 @@ export class SmartTooltip {
   }
 
   public hide(): void {
+    if (this.blurTimerId !== null) {
+      clearTimeout(this.blurTimerId);
+      this.blurTimerId = null;
+    }
     const el = this.getRoot();
     el.setAttribute("data-visible", "false");
     el.style.transform = `translate(-9999px, -9999px)`;
+    el.setAttribute("aria-hidden", "true");
   }
 
   constructor(opts: SmartTooltipOptions = {}) {
@@ -150,6 +214,53 @@ export class SmartTooltip {
         this.hide();
         this.currentTrigger = null;
       }
+    });
+
+    // Focus IN
+    this.on(this.host, "focusin", (e) => {
+      // Cxl pending blur-hide timer.
+      if (this.blurTimerId !== null) {
+        clearTimeout(this.blurTimerId);
+        this.blurTimerId = null;
+      }
+
+      // find closest tooltip trigger for the focused element.
+      const targetElement = e.target as Element | null;
+      const trigger = targetElement?.closest?.(this.selector) as HTMLElement | null;
+
+      // return if no trigger match found
+      if (!trigger) {
+        return;
+      }
+
+      // if tooltip is showing already for this trigger exit.
+      if (this.currentTrigger === trigger) {
+        return;
+      }
+
+      this.currentTrigger = trigger;
+
+      // Resolve the text for the tooltip
+      const textFromData = trigger.getAttribute("data-stp-tooltip");
+      const textFromAria = trigger.getAttribute("aria-label");
+      const text = textFromData ?? textFromAria ?? "";
+
+      if (!text) {
+        return;
+      }
+
+      // Show tooltip and update ARIA linkage
+      this.show(text);
+      this.updateDescribedBy(trigger, "add");
+
+      // Position above-centered relative to the trigger element.
+      const tipRect = this.getTipRect();
+      const rect = trigger.getBoundingClientRect();
+
+      const preferredX = rect.left + rect.width / 2 - tipRect.width / 2;
+      const preferredY = rect.top + tipRect.height - this.offset;
+
+      this.clampAndMove(preferredX, preferredY);
     });
 
     this.on(window, "blur", () => {
