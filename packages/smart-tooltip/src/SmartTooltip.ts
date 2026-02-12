@@ -263,6 +263,37 @@ export class SmartTooltip {
       this.clampAndMove(preferredX, preferredY);
     });
 
+    this.on(this.host, "focusout", (e) => {
+      // find trigger on element that lost focus
+      const targetElement = e.target as Element | null;
+      const trigger = targetElement?.closest?.(this.selector) as HTMLElement | null;
+
+      // if blur doesn't originate from a tooltip trigger -- ignore.
+      if (!trigger) {
+        return;
+      }
+
+      if (this.currentTrigger !== trigger) {
+        return;
+      }
+
+      // Schedule a delayed hide to avoid flicker on quick focus moves
+      if (this.blurTimerId !== null) {
+        clearTimeout(this.blurTimerId);
+        this.blurTimerId = null;
+      }
+
+      this.blurTimerId = window.setTimeout(() => {
+        if (this.currentTrigger === trigger) {
+          this.hide();
+          this.updateDescribedBy(trigger, "remove");
+          this.currentTrigger = null;
+        }
+      }, 100);
+    });
+
+    // Focus OUT
+
     this.on(window, "blur", () => {
       this.throttledMove.cancel();
       this.hide();
